@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",  // This allows relative imports from the root directory
+    "paths": {
+      "@/*": ["./*"]  // Define `@/` to map to the root of the project
+    }
+  }
+}
