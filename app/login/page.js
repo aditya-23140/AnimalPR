@@ -13,6 +13,7 @@ const LoginSignup = () => {
   const [passVisible2, setPassVisible2] = useState(true);
   const [windowHeight, setWindowHeight] = useState(0);
 
+  const BACKEND_API_PORT = process.env.NEXT_PUBLIC_BACKEND_API_PORT;
   useEffect(() => {
     setWindowHeight(window.innerHeight);
   }, []);
@@ -38,7 +39,7 @@ const LoginSignup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = isSignUp ? "http://localhost:8000/api/auth/signup/" : "http://localhost:8000/api/auth/login/";
+    const endpoint = isSignUp ? `${BACKEND_API_PORT}api/auth/signup/` : `${BACKEND_API_PORT}api/auth/login/`;
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     if (isSignUp) {
