@@ -19,15 +19,15 @@ const User = () => {
     const fetchProfile = async () => {
       try {
         const response = await fetch(`${BACKEND_API_PORT}api/auth/profile/`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          }
+            "Content-Type": "application/json",
+            Authorization: ` Bearer ${localStorage.getItem("accessToken")}`,
+          },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch profile data');
+          throw new Error("Failed to fetch profile data");
         }
 
         const data = await response.json();
@@ -45,27 +45,29 @@ const User = () => {
 
   const deletePet = async (petId) => {
     try {
-      const response = await fetch(`${BACKEND_API_PORT}api/auth/pets/${petId}/delete/`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+      const response = await fetch(
+        `${BACKEND_API_PORT}api/auth/pets/${petId}/delete/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete pet');
+        throw new Error("Failed to delete pet");
       }
 
-      // If successful, remove the pet from the UI without re-fetching the profile data
-      setPets(pets.filter(pet => pet.id !== petId));
+      setPets(pets.filter((pet) => pet.id !== petId));
     } catch (err) {
       setError(err.message);
     }
   };
 
   const editPet = async (petId, petData) => {
-    localStorage.setItem('petEditData', JSON.stringify(petData));
+    localStorage.setItem("petEditData", JSON.stringify(petData));
     window.location.href = "/user/edit";
   };
 
@@ -85,9 +87,20 @@ const User = () => {
                 <li key={index} className="p-4 bg-gray-700 rounded-lg">
                   <strong>Recent Update:</strong> {pet.name}
                   <div>
-                    Weight: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).weight : 'N/A'} <br />
-                    Height: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).height : 'N/A'} <br />
-                    Sub Notes: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).subNotes.join(', ') : 'N/A'}
+                    Weight:{" "}
+                    {pet.additionalInfo
+                      ? JSON.parse(pet.additionalInfo).weight
+                      : "N/A"}{" "}
+                    <br />
+                    Height:{" "}
+                    {pet.additionalInfo
+                      ? JSON.parse(pet.additionalInfo).height
+                      : "N/A"}{" "}
+                    <br />
+                    Sub Notes:{" "}
+                    {pet.additionalInfo
+                      ? JSON.parse(pet.additionalInfo).subNotes.join(", ")
+                      : "N/A"}
                   </div>
                 </li>
               ))}
@@ -102,12 +115,17 @@ const User = () => {
                 className="rounded-full w-24 h-24 border-2 border-gray-700"
               />
               <div className="ml-4">
-                <h1 className="text-2xl font-bold">{owner ? owner.username : "Loading..."}</h1>
+                <h1 className="text-2xl font-bold">
+                  {owner ? owner.username : "Loading..."}
+                </h1>
                 <p className="text-gray-400">{owner ? owner.email : ""}</p>
                 <p className="mt-1">Some bio about the pet owner goes here.</p>
               </div>
             </div>
-            <Link href="/user/update" className="absolute right-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200">
+            <Link
+              href="/user/update"
+              className="absolute right-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200"
+            >
               Add Pet
             </Link>
             <div className="mb-6">
@@ -116,7 +134,10 @@ const User = () => {
               {pets.length > 0 ? (
                 <ul className="space-y-4">
                   {pets.map((pet, index) => (
-                    <li key={index} className="p-4 bg-gray-700 rounded-lg relative">
+                    <li
+                      key={index}
+                      className="p-4 bg-gray-700 rounded-lg relative"
+                    >
                       <div>Name: {pet.name}</div>
                       <div>Type: {pet.type}</div>
                       <div>Breed: {pet.breed}</div>
@@ -124,9 +145,20 @@ const User = () => {
                       <div>Is Public: {pet.isPublic ? "Yes" : "No"}</div>
 
                       <div>
-                        Weight: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).weight : 'N/A'} <br />
-                        Height: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).height : 'N/A'} <br />
-                        Sub Notes: {pet.additionalInfo ? JSON.parse(pet.additionalInfo).subNotes.join(', ') : 'N/A'}
+                        Weight:{" "}
+                        {pet.additionalInfo
+                          ? JSON.parse(pet.additionalInfo).weight
+                          : "N/A"}{" "}
+                        <br />
+                        Height:{" "}
+                        {pet.additionalInfo
+                          ? JSON.parse(pet.additionalInfo).height
+                          : "N/A"}{" "}
+                        <br />
+                        Sub Notes:{" "}
+                        {pet.additionalInfo
+                          ? JSON.parse(pet.additionalInfo).subNotes.join(", ")
+                          : "N/A"}
                       </div>
 
                       {/* Render Pet Image */}
@@ -160,7 +192,6 @@ const User = () => {
                   <p className="text-gray-400">No Pets Registered</p>
                 </div>
               )}
-
             </div>
 
             <div>
