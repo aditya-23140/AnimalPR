@@ -29,7 +29,44 @@ body {
 * {
   -ms-overflow-style: none;
 }
+
+.wave {
+  fill: #1f2937;
+  margin-bottom: -8px;
+  z-index: 10;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }
 
+
+.acordionShadow {
+  --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+@media (prefers-color-scheme: dark) {
+  .lead {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .acordionShadow {
+    --tw-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.2), 0 4px 6px -4px rgba(169, 169, 169, 0.2);
+    --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+}
+
+.acordion>svg {
+  stroke: rgba(34, 198, 227, 0.95);
+}
+
+.acordion:hover {
+  background-color: var(--color1);
+}
+
+.opened {
+  background-color: var(--color1);
+}
