@@ -1,6 +1,6 @@
-# Sporty India
+# PawGle
 
-Sporty India is a community-driven platform designed for athletes from all over India. It connects athletes with recruiters, coaches, teachers, and professionals, creating a vibrant ecosystem for sporting talent.
+Pawgle is an innovative AI-powered platform designed to help users instantly recognize animals from images. Whether it's a pet, a wild animal, or an unknown species, Pawgle provides detailed information, including the animal’s name, breed, species classification, habitat, and key characteristics.
 
 ## Table of Contents
 
@@ -16,8 +16,9 @@ Sporty India is a community-driven platform designed for athletes from all over 
 - **User-Friendly Navigation**: Intuitive header navigation with dropdown for mobile views.
 - **Dynamic Statistics**: Display of registered athletes, legitimacy ratings, and work opportunities.
 - **Custom Accordion**: Frequently Asked Questions (FAQs) section for user queries.
-- **Search Functionality**: A search bar to find athletes, sports, or ratings quickly.
 - **Responsive Design**: Fully responsive layout that adjusts to different screen sizes.
+- **Instant Animal Recognition**: Upload an image, and Pawgle’s AI will analyze and identify the animal within seconds.
+- **Community & Sharing**: Share your discoveries with the Pawgle community and learn from other animal enthusiasts.
 
 ## Technologies Used
 
@@ -29,12 +30,12 @@ Sporty India is a community-driven platform designed for athletes from all over 
 
 ## Getting Started
 
-To run the Sporty India application locally, follow these steps:
+To run the PawGle frontend application locally, follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Itachi1905/Sporty_India.git
-   cd Sporty_India
+   git clone https://github.com/WhoamiI00/AnimalPR.git
+   cd AnimalPR
 
 2. **Install Dependencies:**
    npm install next react react-dom framer-motion react-icons tailwindcss
@@ -57,8 +58,8 @@ We welcome contributions to the Sporty India project! If you'd like to contribut
 2. **Clone the Repository**
    - Clone your forked repository to your local machine:
      ```bash
-     git clone https://github.com/YOUR_USERNAME/Sporty_India.git
-     cd Sporty_India
+     git clone https://github.com/WhoamiI00/AnimalPR.git
+     cd AnimalPR
      ```
 
 3. **Create a New Branch**
@@ -96,5 +97,5 @@ We welcome contributions to the Sporty India project! If you'd like to contribut
 
 Thank you for your contributions!
 
-## Team Members : Ankit, AdityaK, AdityaS, Ayushman, Bhanu
-github Link -> https://github.com/Itachi1905/Sporty_India.git
+## Team Members : Ankit Raj, Aditya Kumar Singh, Aditya Kumar, Aryan Singh, Kunal Bhardwaj
+github Link -> https://github.com/WhoamiI00/AnimalPR.git
