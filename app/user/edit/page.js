@@ -6,32 +6,34 @@ import Footer from "@/components/footer";
 import CirclesBackground from "@/components/background";
 import { animalBreeds, animalCategories } from "@/components/AnimalTypes";
 
-export default function AddPetForm() {
+export default function EditPetForm() {
   const [pet, setPet] = useState({
-    id: null,
     name: "",
     category: "",
     type: "",
     breed: "",
-    photos: [],
+    images: [],
+    features: [],
     isPublic: false,
     additionalInfo: {
       weight: "",
       height: "",
       subNotes: [],
     },
-    subNote: "", // Temporary value for the sub-note input
+    subNote: "",
   });
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
+  const [backgroundHeight, setBackgroundHeight] = useState("auto");
+
+  const BACKEND_API_PORT = process.env.NEXT_PUBLIC_BACKEND_API_PORT;
 
   useEffect(() => {
-    // Check if there's pet data in localStorage
-    const storedPetData = localStorage.getItem("petEditData");
-    if (storedPetData) {
-      const parsedData = JSON.parse(storedPetData);
-      setPet(parsedData);
-      localStorage.removeItem("petEditData"); // Remove data after loading it
+    setBackgroundHeight(window.innerHeight + 300);
+    const storedPet = JSON.parse(localStorage.getItem("petEditData"));
+    if (storedPet) {
+      setPet(storedPet);
     }
+    localStorage.removeItem("petEditData");
   }, []);
 
   const handleChange = (field, value) => {
@@ -43,7 +45,16 @@ export default function AddPetForm() {
   };
 
   const handleFileChange = (files) => {
-    setPet({ ...pet, photos: Array.from(files) });
+    if (files.length > 0) {
+      setPet({ ...pet, images: [...pet.images, files[0]] });
+    }
+  };
+
+  const removeImage = (image) => {
+    setPet({
+      ...pet,
+      images: pet.images.filter((img) => img !== image),
+    });
   };
 
   const togglePublic = () => {
@@ -60,33 +71,52 @@ export default function AddPetForm() {
     formData.append("type", pet.type);
     formData.append("breed", pet.breed);
     formData.append("isPublic", pet.isPublic);
-    formData.append("additionalInfo", JSON.stringify(pet.additionalInfo)); // Send additionalInfo as a stringified object
 
-    pet.photos.forEach((photo) => {
-      formData.append("photos", photo);
-    });
+    const additionalInfo = pet.additionalInfo.subNotes
+      ? { ...pet.additionalInfo }
+      : { ...pet.additionalInfo, subNotes: [] };
+    formData.append("additionalInfo", JSON.stringify(additionalInfo));
+
+    if (pet.images.length > 0) {
+      pet.images.forEach((image) => {
+        formData.append("images", image);
+      });
+    }
 
     try {
-      // If pet.id exists, it means we are editing. Otherwise, we are adding.
-      const url = pet.id
-        ? `http://localhost:8000/api/auth/pets/${pet.id}/edit/` // Edit request URL
-        : "http://localhost:8000/api/auth/pets/add/"; // Add request URL
+      const deleteResponse = await fetch(
+        `${BACKEND_API_PORT}/api/auth/pets/${pet.id}/delete/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      const response = await fetch(url, {
-        method: pet.id ? "PUT" : "POST", // PUT for editing, POST for creating
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Error response:", text);
+      if (!deleteResponse.ok) {
+        const text = await deleteResponse.text();
+        console.error("Error deleting pet:", text);
       } else {
-        const data = await response.json();
-        console.log("Pet saved successfully", data);
-        window.location.href = "/user"; // Redirect after successful creation or update
+        const postResponse = await fetch(
+          `${BACKEND_API_PORT}/api/auth/pets/add/`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        if (!postResponse.ok) {
+          const text = await postResponse.text();
+          console.error("Error adding new pet:", text);
+        } else {
+          const data = await postResponse.json();
+          console.log("Pet added successfully", data);
+          window.location.href = "/user";
+        }
       }
     } catch (error) {
       console.error("Network Error:", error);
@@ -95,210 +125,304 @@ export default function AddPetForm() {
 
   return (
     <>
-      <CirclesBackground height={window.innerHeight} />
-      <div className="min-h-screen bg-[#0b101a] flex flex-col justify-start">
+      <CirclesBackground height={window.innerHeight + 200} />
+      <div className="min-h-screen bg-[var(--background)] flex flex-col justify-start">
         <Navbar />
-        <div className="w-full py-6 px-4 text-white">
-          <h2 className="text-2xl font-semibold mb-4">
-            {pet.id ? "Edit Pet" : "Add Pet"}
-          </h2>
-          <form onSubmit={handleSubmit}>
-            {/* Name */}
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-lg font-semibold">
-                Pet Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={pet.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                required
-              />
-            </div>
-
-            {/* Category */}
-            <div className="mb-4">
-              <label htmlFor="category" className="block text-lg font-semibold">
-                Pet Category
-              </label>
-              <select
-                id="category"
-                value={pet.category}
-                onChange={(e) => handleChange("category", e.target.value)}
-                className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                required
+        <div className="flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-lg w-full bg-[var(--background2)] rounded-2xl shadow-lg hover:shadow-xl overflow-hidden transform transition-all hover:scale-105 duration-500 ease-in-out">
+            <div className="px-10 py-12">
+              <h1 className="text-center text-3xl font-extrabold text-[var(--textColor)] mb-6 tracking-tight hover:tracking-wide transition-all duration-300">
+                Edit Pet Details
+              </h1>
+              <form
+                id="submitForm"
+                className="space-y-6"
+                onSubmit={handleSubmit}
               >
-                <option value="">Select a category</option>
-                {animalCategories &&
-                  Array.isArray(animalCategories) &&
-                  animalCategories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            {/* Type */}
-            <div className="mb-4">
-              <label htmlFor="type" className="block text-lg font-semibold">
-                Pet Type
-              </label>
-              <select
-                id="type"
-                value={pet.type}
-                onChange={(e) => handleChange("type", e.target.value)}
-                className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                required
-              >
-                <option value="">Select a type</option>
-                {animalBreeds[pet.category]?.map((type, index) => (
-                  <option key={index} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Breed */}
-            <div className="mb-4">
-              <label htmlFor="breed" className="block text-lg font-semibold">
-                Pet Breed
-              </label>
-              <input
-                type="text"
-                id="breed"
-                value={pet.breed}
-                onChange={(e) => handleChange("breed", e.target.value)}
-                className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-              />
-            </div>
-
-            {/* Is Public */}
-            <div className="mb-4">
-              <label className="block text-lg font-semibold">
-                Is Pet Public?
-              </label>
-              <button
-                type="button"
-                onClick={togglePublic}
-                className={`w-full p-3 mt-2 ${
-                  pet.isPublic ? "bg-green-500" : "bg-red-500"
-                } border-2 rounded-lg`}
-              >
-                {pet.isPublic ? "Public" : "Private"}
-              </button>
-            </div>
-
-            {/* Sub Notes */}
-            {showAdditionalInfo && (
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold">Additional Info</h3>
-                <div className="mt-2">
-                  <label
-                    htmlFor="weight"
-                    className="block text-md font-semibold"
-                  >
-                    Weight
-                  </label>
-                  <input
-                    type="text"
-                    id="weight"
-                    value={pet.additionalInfo.weight}
-                    onChange={(e) =>
-                      handleChange("additionalInfo", {
-                        ...pet.additionalInfo,
-                        weight: e.target.value,
-                      })
-                    }
-                    className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Pet Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={pet.name}
+                      onChange={(e) => handleChange("name", e.target.value)}
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                      placeholder="Enter pet's name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Select Category
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      value={pet.category}
+                      onChange={(e) => handleChange("category", e.target.value)}
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                      required
+                    >
+                      <option value="">Select Category</option>
+                      {Object.keys(animalCategories).map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="type"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Select Animal Type
+                    </label>
+                    <select
+                      id="type"
+                      name="type"
+                      value={pet.type}
+                      onChange={(e) => handleChange("type", e.target.value)}
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                      required
+                    >
+                      <option value="">Select Type</option>
+                      {pet.category &&
+                        animalCategories[pet.category].types.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="breed"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Select Breed
+                    </label>
+                    <select
+                      id="breed"
+                      name="breed"
+                      value={pet.breed}
+                      onChange={(e) => handleChange("breed", e.target.value)}
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                      required
+                    >
+                      <option value="">Select Breed</option>
+                      {pet.type &&
+                        animalBreeds[pet.type] &&
+                        animalBreeds[pet.type].map((breed) => (
+                          <option key={breed} value={breed}>
+                            {breed}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="images"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Upload Image
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="images"
+                        name="images"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => handleFileChange(e.target.files)}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="images"
+                        className="flex items-center justify-center px-4 py-2 bg-[var(--primaryColor)] text-[var(--textColor3)] font-bold rounded-lg cursor-pointer hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] hover:shadow-lg transition-all duration-300 ease-in-out"
+                      >
+                        {pet.images.length > 0
+                          ? `${pet.images.length} file(s) selected`
+                          : "Choose File"}
+                      </label>
+                    </div>
+                    <div>
+                      {pet.images.length > 0 && (
+                        <ul className="mt-2 text-[var(--textColor2)]">
+                          {pet.images.map((image, index) => (
+                            <li key={index} className="flex justify-between">
+                              <span>{image.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(image)}
+                                className="text-[var(--primaryColor)] hover:text-[var(--textColor3)]"
+                              >
+                                Remove
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
+                      className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
+                    >
+                      {showAdditionalInfo
+                        ? "Hide Additional Info"
+                        : "Add Additional Info"}
+                    </button>
+                  </div>
+                  {showAdditionalInfo && (
+                    <>
+                      <div>
+                        <label
+                          htmlFor="weight"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
+                          Weight
+                        </label>
+                        <input
+                          type="number"
+                          id="weight"
+                          name="weight"
+                          value={pet.additionalInfo.weight}
+                          onChange={(e) =>
+                            handleChange("additionalInfo", {
+                              ...pet.additionalInfo,
+                              weight: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                          placeholder="Enter pet's weight"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="height"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
+                          Height
+                        </label>
+                        <input
+                          type="number"
+                          id="height"
+                          name="height"
+                          value={pet.additionalInfo.height}
+                          onChange={(e) =>
+                            handleChange("additionalInfo", {
+                              ...pet.additionalInfo,
+                              height: e.target.value,
+                            })
+                          }
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                          placeholder="Enter pet's height"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="subNote"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
+                          Add Sub-Note
+                        </label>
+                        <input
+                          type="text"
+                          id="subNote"
+                          name="subNote"
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
+                          placeholder="Add a sub-note"
+                          value={pet.subNote}
+                          onChange={(e) =>
+                            setPet({
+                              ...pet,
+                              subNote: e.target.value,
+                            })
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newSubNotes = [
+                              ...pet.additionalInfo.subNotes,
+                              pet.subNote,
+                            ];
+                            setPet({
+                              ...pet,
+                              additionalInfo: {
+                                ...pet.additionalInfo,
+                                subNotes: newSubNotes,
+                              },
+                              subNote: "",
+                            });
+                          }}
+                          className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
+                        >
+                          Add Sub-Note
+                        </button>
+                        <div>
+                          {pet.additionalInfo.subNotes.length > 0 && (
+                            <ul className="text-[var(--textColor2)] mt-2">
+                              {pet.additionalInfo.subNotes.map(
+                                (note, index) => (
+                                  <li key={index}>{note}</li>
+                                )
+                              )}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <label
+                      htmlFor="isPublic"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Visibility
+                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="isPublic"
+                        name="isPublic"
+                        checked={pet.isPublic}
+                        onChange={togglePublic}
+                        className="h-5 w-5 text-[var(--primaryColor)] border border-[var(--secondaryColor2)] rounded focus:ring-[var(--primaryColor)] transition duration-150 ease-in-out"
+                      />
+                      <label
+                        htmlFor="isPublic"
+                        className="ml-2 text-sm text-[var(--textColor2)]"
+                      >
+                        Make photos public
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
+                    >
+                      Submit Edits
+                    </button>
+                  </div>
                 </div>
-
-                <div className="mt-4">
-                  <label
-                    htmlFor="height"
-                    className="block text-md font-semibold"
-                  >
-                    Height
-                  </label>
-                  <input
-                    type="text"
-                    id="height"
-                    value={pet.additionalInfo.height}
-                    onChange={(e) =>
-                      handleChange("additionalInfo", {
-                        ...pet.additionalInfo,
-                        height: e.target.value,
-                      })
-                    }
-                    className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                  />
-                </div>
-
-                <div className="mt-4">
-                  <label
-                    htmlFor="subNote"
-                    className="block text-md font-semibold"
-                  >
-                    Add Sub Note
-                  </label>
-                  <input
-                    type="text"
-                    id="subNote"
-                    value={pet.subNote}
-                    onChange={(e) =>
-                      setPet({ ...pet, subNote: e.target.value })
-                    }
-                    className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (pet.subNote) {
-                        handleChange("additionalInfo", {
-                          ...pet.additionalInfo,
-                          subNotes: [
-                            ...pet.additionalInfo.subNotes,
-                            pet.subNote,
-                          ],
-                        });
-                        setPet({ ...pet, subNote: "" });
-                      }
-                    }}
-                    className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
-                  >
-                    Add Sub Note
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="mb-4">
-              <label htmlFor="photos" className="block text-lg font-semibold">
-                Pet Photos
-              </label>
-              <input
-                type="file"
-                id="photos"
-                accept="image/*"
-                multiple
-                onChange={(e) => handleFileChange(e.target.files)}
-                className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
-              />
+              </form>
             </div>
-
-            <div className="mt-4">
-              <button
-                type="submit"
-                className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-              >
-                {pet.id ? "Update Pet" : "Add Pet"}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
         <Footer />
       </div>
