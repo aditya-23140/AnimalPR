@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { MdDashboard } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -34,69 +35,94 @@ export default function Navbar() {
   };
 
   return (
-    <header className="flex justify-between items-center px-6 py-5 shadow-lg z-50">
-      <div className="text-3xl md:text-4xl font-bold">
-        <Link href="/">Pet<span className="text-blue-500">Gle</span></Link>
-      </div>
+    <>
+      <header className="flex justify-between fixed w-full items-center px-6 py-5 shadow-lg z-20 bg-[var(--backgroundColor)]">
+        <div className="text-3xl md:text-4xl font-bold text-[var(--secondaryColor)]">
+          <Link href="/">
+            Paw<span className="text-[var(--primaryColor)]">Gle</span>
+          </Link>
+        </div>
 
-      {/* Search Bar */}
-      <div className="hidden md:flex items-center flex-grow max-w-xs space-x-3 mr-[100px]">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Profile Section */}
-      <div className="relative">
-        <button onClick={toggleDropdown} className="flex items-center space-x-2">
-          <img
-            src="/animal.png" 
-            alt="Profile"
-            className="w-10 h-10 rounded-full border-2 border-white"
+        {/* Search Bar */}
+        <div className="hidden md:flex items-center flex-grow max-w-xs space-x-3 mr-[100px]">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="w-full px-4 py-2 rounded-md bg-white text-[var(--secondaryColor)] focus:outline-none focus:ring-1 focus:ring-[var(--secondaryColor)] shadow-lg"
           />
-        </button>
-        {showDropdown && (
-          <motion.div
-            className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-50"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+        </div>
+
+        {/* Profile Section */}
+        <div className="relative">
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center space-x-2"
           >
-            <ul className="py-2">
-              {/* Search Bar inside Dropdown for Small Screens */}
-              <li className="px-4 py-2 hover:bg-gray-700 md:hidden">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-full px-4 py-2 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </li>
-              <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2">
-                <MdDashboard />
-                <Link href="/dashboard"><span>Dashboard</span></Link>
-              </li>
-              {/* <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2">
+            <Image
+              src="/animal.png"
+              width={100}
+              height={100}
+              alt="Profile"
+              className="w-10 h-10 items-center rounded-full border-2 border-[var(--primaryColor)] bg-[var(--c2)]"
+            />
+          </button>
+          {showDropdown && (
+            <motion.div
+              className="absolute right-0 mt-2 w-48 bg-[var(--background2)] rounded-lg shadow-lg z-50"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ul className="py-2 text-[var(--secondaryColor)]">
+                {/* Search Bar inside Dropdown for Small Screens */}
+                <li className="px-4 py-2 hover:bg-[var(--primaryColor)] md:hidden">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="w-full px-4 py-2 rounded-md bg-gray-700 text-[var(--secondaryColor)] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </li>
+                <li className="px-4 py-2 hover:bg-[var(--backgroundColor)] flex items-center space-x-2">
+                  <MdDashboard />
+                  <Link href="/dashboard">
+                    <span>Dashboard</span>
+                  </Link>
+                </li>
+                {/* <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2">
                 <FaEdit />
                 <span>Change Username</span>
               </li> */}
-              <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2">
-                <FaUser />
-                <Link href="/user"><span>Profile</span></Link>
-              </li>
-              <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2">
-                <FaCog />
-                <span>Settings</span>
-              </li>
-              <li className="px-4 py-2 hover:bg-gray-700 flex items-center space-x-2" onClick={logout}>
-                <FiLogOut className="text-[22px]"/>
-                {localStorage.getItem("accessToken") && localStorage.getItem("refreshToken") ? <Link href="/"><span>LogOut</span></Link> : <Link href="/login"><span>Login</span></Link>}
-              </li>
-            </ul>
-          </motion.div>
-        )}
-      </div>
-    </header>
+                <li className="px-4 py-2 hover:bg-[var(--backgroundColor)] flex items-center space-x-2">
+                  <FaUser />
+                  <Link href="/user">
+                    <span>Profile</span>
+                  </Link>
+                </li>
+                <li className="px-4 py-2 hover:bg-[var(--backgroundColor)] flex items-center space-x-2">
+                  <FaCog />
+                  <span>Settings</span>
+                </li>
+                <li
+                  className="px-4 py-2 hover:bg-[var(--backgroundColor)] flex items-center space-x-2"
+                  onClick={logout}
+                >
+                  <FiLogOut className="text-[22px]" />
+                  {localStorage.getItem("accessToken") &&
+                  localStorage.getItem("refreshToken") ? (
+                    <Link href="/">
+                      <span>LogOut</span>
+                    </Link>
+                  ) : (
+                    <Link href="/login">
+                      <span>Login</span>
+                    </Link>
+                  )}
+                </li>
+              </ul>
+            </motion.div>
+          )}
+        </div>
+      </header>
+    </>
   );
 }

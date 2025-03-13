@@ -13,10 +13,11 @@ import { motion } from "framer-motion";
 import Footer from "@/components/footer";
 import Link from "next/link";
 import { RiCustomerService2Fill } from "react-icons/ri";
+import CirclesBackground from "@/components/background";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_API_PORT;
 
-const PetGle = () => {
+const PawGle = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [userInfoExists, setUserInfoExists] = useState(false);
   const [usersCount, setUsersCount] = useState(0);
@@ -52,8 +53,8 @@ const PetGle = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-white relative overflow-hidden">
-      <video
+    <div className="min-h-screen flex flex-col text relative overflow-hidden">
+      {/* <video
         playsInline
         className="absolute top-0 left-0 w-full h-full object-cover z-[-1]"
         autoPlay
@@ -61,21 +62,22 @@ const PetGle = () => {
         muted
         src="/animal.mp4"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent "></div> */}
 
-      <header className="flex justify-between items-center px-6 py-5 shadow-lg relative z-0">
+      <div className="bg"></div>
+      <header className="flex justify-between items-center px-8 py-3 shadow-lg fixed w-full z-50 bg-[var(--backgroundColor)]">
         <div className="text-4xl font-bold">
-          <a href="/">
-            Pet<span className="text-blue-500">Gle</span>
-          </a>
+          <Link href="/">
+            Paw<span className="primary">Gle</span>
+          </Link>
         </div>
         <div className="hidden md:flex">
           <nav>
-            <ul className="flex space-x-8">
+            <ul className="flex space-x-8 nav-links">
               <li>
                 <Link
                   href="/"
-                  className="text-white hover:text-blue-500 transition duration-200 text-lg font-medium"
+                  className="text hover:text-[var(--primaryColor)] transition duration-200 text-lg font-medium"
                 >
                   Home
                 </Link>
@@ -83,7 +85,7 @@ const PetGle = () => {
               <li>
                 <Link
                   href="/dashboard"
-                  className="text-white hover:text-blue-500 transition duration-200 text-lg font-medium"
+                  className="text hover:text-[var(--primaryColor)] transition duration-200 text-lg font-medium"
                 >
                   DashBoard
                 </Link>
@@ -91,7 +93,7 @@ const PetGle = () => {
               <li>
                 <Link
                   href="/pets"
-                  className="text-white hover:text-blue-500 transition duration-200 text-lg font-medium"
+                  className="text hover:text-[var(--primaryColor)] transition duration-200 text-lg font-medium"
                 >
                   Pets
                 </Link>
@@ -99,7 +101,7 @@ const PetGle = () => {
               <li>
                 <Link
                   href="/support"
-                  className="text-white hover:text-blue-500 transition duration-200 text-lg font-medium"
+                  className="text hover:text-[var(--primaryColor)] transition duration-200 text-lg font-medium"
                 >
                   Support
                 </Link>
@@ -108,14 +110,14 @@ const PetGle = () => {
           </nav>
         </div>
         <div className="hidden md:flex space-x-4">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200 transform hover:scale-105">
+          <button className="bg-[var(--primary1)] hover:bg-[var(--primary2)] text py-2 px-4 rounded-lg shadow-lg transition duration-200 transform hover:scale-105">
             <RiCustomerService2Fill className="text-2xl" />
           </button>
           {!userInfoExists ? (
-            <button className="border border-white hover:border-blue-500 hover:text-blue-500 text-white py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105">
+            <button className="border border-white hover:border[var(--primary2)] hover:text-[var(--primaryColor)] text py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105">
               <Link
                 href="/login"
-                className="text-white hover:text-blue-500 transition duration-200"
+                className="text hover:text-[var(--primaryColor)] transition duration-200"
               >
                 Sign In or Create Account
               </Link>
@@ -127,63 +129,72 @@ const PetGle = () => {
           )}
         </div>
         <div className="md:hidden flex items-center">
-          <button onClick={toggleNav} className="text-white">
+          <button onClick={toggleNav} className="text">
             {isNavOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
           </button>
         </div>
       </header>
 
       {/* Mobile Navigation Menu */}
-      {isNavOpen && (
-        <div className="md:hidden bg-gray-800 p-4 flex flex-col space-y-4 text-center">
-          <nav>
-            <ul className="space-y-4">
-              {["Home", "Dashboard", "Pets", "Support"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href={"/" + item}
-                    className="text-white hover:text-blue-500 transition duration-200 text-lg font-medium"
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200 transform hover:scale-105 items-center">
+      <div
+        className={`absolute left-0 w-full bg-[var(--backgroundColor)] shadow-md transition-all duration-300 overflow-hidden z-50 ${
+          isNavOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+        style={{
+          top: "4rem", // Adjust this to be below navbar
+          transition: "max-height 0.3s ease, opacity 0.3s ease",
+        }}
+      >
+        <nav className="p-4">
+          <ul className="space-y-4 nav-links">
+            {["Home", "Dashboard", "Pets", "Support"].map((item) => (
+              <li key={item}>
+                <Link
+                  href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                  className="text hover:text-[var(--primaryColor)] transition duration-200 text-lg font-medium"
+                  onClick={toggleNav}
+                >
+                  {item}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="flex flex-col items-start p-4 space-y-4">
+          <button className="bg-[var(--primary1)] hover:bg-[var(--primary2)] text py-2 px-4 rounded-lg shadow-lg transition duration-200 transform hover:scale-105">
             Customer Care&nbsp;
             <RiCustomerService2Fill className="inline text-[20px]" />
           </button>
-          <button className="border border-white hover:border-blue-500 hover:text-blue-500 text-white py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105">
+          <button className="border border-white hover:border-[var(--primaryColor)] hover:text-[var(--primaryColor)] text py-2 px-4 rounded-lg transition duration-200 transform hover:scale-105">
             <Link
               href="/login"
-              className="text-white hover:text-blue-500 transition duration-200"
+              className="text hover:text-[var(--primaryColor)] transition duration-200"
             >
               Sign In or Create Account
             </Link>
           </button>
         </div>
-      )}
+      </div>
 
-      <main className="text-center mt-16 px-6 relative z-10">
+      <main className="text-center mt-32 px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <div className="flex justify-center items-center mb-4">
-            <p className="text-green-400 text-sm font-medium flex items-center">
-              <FaRocket className="mr-2 text-yellow-100" />
+            <p className="text-green-400 text-sm font-bold flex items-center">
+              <FaRocket className="mr-2 text-red-400" />
               {petsCount ? petsCount : ""} NEW PETS REGISTERED THIS WEEK!
             </p>
           </div>
-          <h1 className="text-6xl font-bold text-gray-300 mb-4">
+          <h1 className="text-6xl font-bold text-[var(--primaryColor)] mb-4">
             Effortless Identification
           </h1>
-          <h1 className="text-6xl font-bold text-gray-300 mb-6">
+          <h1 className="text-6xl font-bold text-[var(--primaryColor)] mb-6">
             of Your Pets
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto font-cursive mb-12">
+          <p className="text-[var(--primary2)] text-lg max-w-2xl mx-auto font-cursive mb-12">
             Say goodbye to the hassle of recognizing your furry friends!
           </p>
 
@@ -194,7 +205,7 @@ const PetGle = () => {
                 placeholder="Search for pet name, breed, owner..."
                 className="flex-grow bg-transparent outline-none px-4 py-3 text-gray-900 rounded-l-full placeholder-gray-500"
               />
-              <button className="bg-blue-500 text-white py-2 px-6 rounded-full transition hover:bg-blue-600">
+              <button className="bg-[var(--primary1)] text py-2 px-6 rounded-full transition hover:bg-[var(--primary2)]">
                 Search
               </button>
             </div>
@@ -203,17 +214,23 @@ const PetGle = () => {
       </main>
       <div className="flex z-1 py-20 px-6 pt-28 items-center justify-center flex-wrap gap-10 relative z-10">
         <StatCard
-          icon={<FaUsers className="w-10 h-10 mb-4 text-gray-400" />}
+          icon={
+            <FaUsers className="w-10 h-10 mb-4 text-[var(--primaryColor)]" />
+          }
           number={usersCount ? usersCount : 0}
           description="Users Registered"
         />
         <StatCard
-          icon={<FaCheckCircle className="w-10 h-10 mb-4 text-gray-400" />}
+          icon={
+            <FaCheckCircle className="w-10 h-10 mb-4 text-[var(--primaryColor)]" />
+          }
           number="100%"
           description="Pet Owner Verified"
         />
         <StatCard
-          icon={<FaTasks className="w-10 h-10 mb-4 text-gray-400" />}
+          icon={
+            <FaTasks className="w-10 h-10 mb-4 text-[var(--primaryColor)]" />
+          }
           number={petsCount ? petsCount : 0}
           description="Animals Registered"
         />
@@ -252,18 +269,24 @@ const CustomAccordion = () => {
   ];
 
   return (
-    <div>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+    <div className="z-10">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1440 320"
+        className="relative -bottom-1"
+      >
         <path
           className="wave"
           fillOpacity="1"
           d="M0,192L40,202.7C80,213,160,235,240,224C320,213,400,171,480,170.7C560,171,640,213,720,240C800,267,880,277,960,261.3C1040,245,1120,203,1200,181.3C1280,160,1360,160,1400,160L1440,160L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"
         ></path>
       </svg>
-      <section id="faq" className="faq py-12 bg-gray-800 z-10">
+      <section id="faq" className="faq py-12 bg-[var(--background)] z-10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h1 className="text-6xl font-bold text-uppercase mb-2">FAQ</h1>
+            <h1 className="text-6xl font-bold text-uppercase mb-2 text-[var(--secondaryColor)]">
+              FAQ
+            </h1>
             <div className="headingLine"></div>
             <p className="lead">
               Frequently asked questions, get knowledge beforehand
@@ -318,20 +341,20 @@ const CustomAccordion = () => {
 const StatCard = ({ icon, number, description }) => {
   return (
     <motion.div
-      className="text-center max-w-[220px] flex flex-col items-center bg-gray-800 p-4 rounded-lg shadow-lg transition duration-300 hover:shadow-2xl"
+      className="text-center max-w-[220px] flex flex-col items-center bg-[var(--background)] p-4 rounded-lg shadow-lg transition duration-300 hover:shadow-2xl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       {icon}
-      <span className="text-5xl font-extrabold md:text-6xl text-white">
+      <span className="text-5xl font-extrabold md:text-6xl text-[var(--textColor)]">
         {number}
       </span>
-      <p className="mt-2 text-base font-semibold text-gray-400">
+      <p className="mt-2 text-base font-semibold text-[var(--primaryColor)]">
         {description}
       </p>
     </motion.div>
   );
 };
 
-export default PetGle;
+export default PawGle;

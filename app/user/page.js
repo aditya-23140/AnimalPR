@@ -5,6 +5,7 @@ import Footer from "@/components/footer";
 import CirclesBackground from "@/components/background";
 import Link from "next/link";
 import { CiEdit } from "react-icons/ci";
+import Image from "next/image";
 
 const User = () => {
   const [owner, setOwner] = useState(null);
@@ -12,20 +13,18 @@ const User = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch the BACKEND_API_PORT from environment variables
   const BACKEND_API_PORT = process.env.NEXT_PUBLIC_BACKEND_API_PORT;
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${BACKEND_API_PORT}api/auth/profile/`, {
+        const response = await fetch(`${BACKEND_API_PORT}/api/auth/profile/`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: ` Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         });
-
         if (!response.ok) {
           throw new Error("Failed to fetch profile data");
         }
@@ -46,7 +45,7 @@ const User = () => {
   const deletePet = async (petId) => {
     try {
       const response = await fetch(
-        `${BACKEND_API_PORT}api/auth/pets/${petId}/delete/`,
+        `${BACKEND_API_PORT}/api/auth/pets/${petId}/delete/`,
         {
           method: "DELETE",
           headers: {
@@ -71,134 +70,128 @@ const User = () => {
     window.location.href = "/user/edit";
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        Error: {error}
+      </div>
+    );
 
   return (
     <>
-      <CirclesBackground height={window.innerHeight + 100} />
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-black to-gray-900 text-white">
+      <CirclesBackground height={document.body.scrollHeight} />
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-[var(--background2)] to-[var(--backgroundColor)] text-white">
         <Navbar />
-        <main className="flex flex-col md:flex-row p-6 space-x-0 md:space-x-6 z-10">
-          <div className="w-full md:w-1/4 bg-gray-800 p-4 rounded-lg shadow-lg mb-6 md:mb-0">
+        <main className="flex flex-col md:flex-row p-6 space-x-0 md:space-x-6 mt-20">
+          <div className="w-full md:w-1/4 p-4 rounded-lg shadow-lg mb-6 md:mb-0 h-[84vh] overflow-y-auto scroll-smooth text-[var(--textColor)] bg-[var(--backgroundColor)] z-10">
             <h2 className="text-xl font-semibold mb-4">Recent Data</h2>
             <ul className="space-y-4">
-              {pets.map((pet, index) => (
-                <li key={index} className="p-4 bg-gray-700 rounded-lg">
-                  <strong>Recent Update:</strong> {pet.name}
-                  <div>
-                    Weight:{" "}
-                    {pet.additionalInfo
-                      ? JSON.parse(pet.additionalInfo).weight
-                      : "N/A"}{" "}
-                    <br />
-                    Height:{" "}
-                    {pet.additionalInfo
-                      ? JSON.parse(pet.additionalInfo).height
-                      : "N/A"}{" "}
-                    <br />
-                    Sub Notes:{" "}
-                    {pet.additionalInfo
-                      ? JSON.parse(pet.additionalInfo).subNotes.join(", ")
-                      : "N/A"}
-                  </div>
-                </li>
-              ))}
+              <li className="p-4 rounded-lg bg-[var(--background2)] text-[var(--textColor)]">
+                <strong>Recent Update:</strong> {pets[0]?.name || "N/A"}
+                <div>
+                  Weight: {pets[0]?.additionalInfo?.weight || "N/A"} <br />
+                  Height: {pets[0]?.additionalInfo?.height || "N/A"} <br />
+                  Sub Notes:{" "}
+                  {pets[0]?.additionalInfo?.subNotes?.join(", ") || "N/A"}
+                </div>
+              </li>
             </ul>
           </div>
 
-          <div className="w-full md:w-3/4 bg-gray-800 p-6 rounded-lg shadow-lg relative">
+          <div className="w-full md:w-3/4 p-6 rounded-lg shadow-lg relative h-[84vh] overflow-y-auto scroll-smooth text-[var(--textColor)] bg-[var(--backgroundColor)]">
             <div className="flex items-center mb-6">
-              <img
+              <Image
                 src="/animal.png"
+                width={100}
+                height={100}
                 alt="Profile"
-                className="rounded-full w-24 h-24 border-2 border-gray-700"
+                className="rounded-full w-24 h-24 border-2"
               />
               <div className="ml-4">
                 <h1 className="text-2xl font-bold">
-                  {owner ? owner.username : "Loading..."}
+                  {owner?.username || "Loading..."}
                 </h1>
-                <p className="text-gray-400">{owner ? owner.email : ""}</p>
+                <p>{owner?.email || ""}</p>
                 <p className="mt-1">Some bio about the pet owner goes here.</p>
               </div>
             </div>
             <Link
               href="/user/update"
-              className="absolute right-6 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200"
+              className="absolute right-6 py-2 px-4 rounded-lg shadow-lg transition duration-200 text-[var(--textColor3)] bg-[var(--primaryColor)] hover:scale-105 hover:bg-[var(--primary1)] hover:text-[var(--textColor)]"
             >
               Add Pet
             </Link>
+            <Link
+              href="/user/search"
+              className="absolute right-32 py-2 px-4 rounded-lg shadow-lg transition duration-200 text-[var(--textColor3)] bg-[var(--primary1)] hover:scale-105 hover:bg-[var(--primary2)] hover:text-[var(--textColor)]"
+            >
+              Search Pet
+            </Link>
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-4">Pets Registered</h2>
-
               {pets.length > 0 ? (
                 <ul className="space-y-4">
-                  {pets.map((pet, index) => (
+                  {pets.map((pet) => (
                     <li
-                      key={index}
-                      className="p-4 bg-gray-700 rounded-lg relative"
+                      key={pet.id}
+                      className="p-4 rounded-lg relative text-[var(--textColor)] bg-[var(--background2)]"
                     >
                       <div>Name: {pet.name}</div>
                       <div>Type: {pet.type}</div>
                       <div>Breed: {pet.breed}</div>
                       <div>Category: {pet.category}</div>
                       <div>Is Public: {pet.isPublic ? "Yes" : "No"}</div>
-
                       <div>
-                        Weight:{" "}
-                        {pet.additionalInfo
-                          ? JSON.parse(pet.additionalInfo).weight
-                          : "N/A"}{" "}
-                        <br />
-                        Height:{" "}
-                        {pet.additionalInfo
-                          ? JSON.parse(pet.additionalInfo).height
-                          : "N/A"}{" "}
-                        <br />
+                        Weight: {pet.additionalInfo?.weight || "N/A"} <br />
+                        Height: {pet.additionalInfo?.height || "N/A"} <br />
                         Sub Notes:{" "}
-                        {pet.additionalInfo
-                          ? JSON.parse(pet.additionalInfo).subNotes.join(", ")
-                          : "N/A"}
+                        {pet.additionalInfo?.subNotes?.join(", ") || "N/A"}
                       </div>
-
-                      {/* Render Pet Image */}
-                      {pet.photos && (
+                      {pet.images?.length > 0 && (
                         <div className="mt-2 absolute top-0 right-4">
-                          <img
-                            src={`${BACKEND_API_PORT}${pet.photos}`}
-                            alt={pet.name}
-                            className="w-auto h-[8em] rounded-lg"
+                          <Image
+                            src={`${BACKEND_API_PORT}/media/${pet.images}`}
+                            alt="Pet"
+                            width={100}
+                            height={100}
+                            className="w-32 h-32 object-cover rounded-lg shadow-lg"
                           />
                         </div>
                       )}
-                      <button
-                        onClick={() => editPet(pet.id, pet)}
-                        className="absolute bottom-[3em] right-3 text-white py-2 px-4 rounded-lg transition duration-200 scale-[2]"
-                      >
-                        <CiEdit />
-                      </button>
-
-                      <button
-                        onClick={() => deletePet(pet.id)}
-                        className="absolute bottom-2 right-3 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-lg transition duration-200 scale-[0.8]"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex w-fit absolute right-2 bottom-4 justify-end space-x-4">
+                        <button
+                          onClick={() => editPet(pet.id, pet)}
+                          className="flex items-center py-2 px-4 rounded-lg transition duration-200 hover:scale-105 hover:bg-[var(--primary1)] hover:text-[var(--textColor)] bg-[var(--primaryColor)] text-[var(--textColor3)]"
+                        >
+                          <CiEdit className="mr-2" /> Edit
+                        </button>
+                        <button
+                          onClick={() => deletePet(pet.id)}
+                          className="py-2 px-4 rounded-lg shadow-lg transition duration-200 hover:scale-105 hover:bg-[var(--c4)] hover:text-[var(--textColor)] bg-[var(--c2)] text-[var(--textColor3)]"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div>
-                  <p className="text-gray-400">No Pets Registered</p>
+                  <p>No Pets Registered</p>
                 </div>
               )}
             </div>
-
             <div>
               <h2 className="text-2xl font-semibold mb-4">Recent Activities</h2>
-              <div className="p-4 bg-gray-700 rounded-lg">
-                <p className="text-gray-400">No recent activity found.</p>
-                <div className="h-32 bg-gray-600 mt-2 rounded-lg"></div>
+              <div className="p-4 rounded-lg text-[var(--textColor)] bg-[var(--background2)]">
+                <p>No recent activity found.</p>
+                <div className="h-32 mt-2 rounded-lg text-[var(--textColor)] bg-[var(--c3)]"></div>
               </div>
             </div>
           </div>

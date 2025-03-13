@@ -23,7 +23,6 @@ export default function AddPetForm() {
     subNote: "", // Temporary value for the sub-note input
   });
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
-  const [backgroundHeight, setBackgroundHeight] = useState("auto");
 
   useEffect(() => {
     // Check if there's pet data in localStorage
@@ -33,8 +32,6 @@ export default function AddPetForm() {
       setPet(parsedData);
       localStorage.removeItem("petEditData"); // Remove data after loading it
     }
-
-    setBackgroundHeight(window.innerHeight + 300);
   }, []);
 
   const handleChange = (field, value) => {
@@ -97,12 +94,14 @@ export default function AddPetForm() {
   };
 
   return (
-    <>zz
-      <CirclesBackground height={backgroundHeight} />
+    <>
+      <CirclesBackground height={window.innerHeight} />
       <div className="min-h-screen bg-[#0b101a] flex flex-col justify-start">
         <Navbar />
         <div className="w-full py-6 px-4 text-white">
-          <h2 className="text-2xl font-semibold mb-4">{pet.id ? "Edit Pet" : "Add Pet"}</h2>
+          <h2 className="text-2xl font-semibold mb-4">
+            {pet.id ? "Edit Pet" : "Add Pet"}
+          </h2>
           <form onSubmit={handleSubmit}>
             {/* Name */}
             <div className="mb-4">
@@ -132,11 +131,13 @@ export default function AddPetForm() {
                 required
               >
                 <option value="">Select a category</option>
-                {animalCategories && Array.isArray(animalCategories) && animalCategories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
-                ))}
+                {animalCategories &&
+                  Array.isArray(animalCategories) &&
+                  animalCategories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -177,7 +178,9 @@ export default function AddPetForm() {
 
             {/* Is Public */}
             <div className="mb-4">
-              <label className="block text-lg font-semibold">Is Pet Public?</label>
+              <label className="block text-lg font-semibold">
+                Is Pet Public?
+              </label>
               <button
                 type="button"
                 onClick={togglePublic}
@@ -194,46 +197,61 @@ export default function AddPetForm() {
               <div className="mb-4">
                 <h3 className="text-lg font-semibold">Additional Info</h3>
                 <div className="mt-2">
-                  <label htmlFor="weight" className="block text-md font-semibold">
+                  <label
+                    htmlFor="weight"
+                    className="block text-md font-semibold"
+                  >
                     Weight
                   </label>
                   <input
                     type="text"
                     id="weight"
                     value={pet.additionalInfo.weight}
-                    onChange={(e) => handleChange("additionalInfo", {
-                      ...pet.additionalInfo,
-                      weight: e.target.value,
-                    })}
+                    onChange={(e) =>
+                      handleChange("additionalInfo", {
+                        ...pet.additionalInfo,
+                        weight: e.target.value,
+                      })
+                    }
                     className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
                   />
                 </div>
 
                 <div className="mt-4">
-                  <label htmlFor="height" className="block text-md font-semibold">
+                  <label
+                    htmlFor="height"
+                    className="block text-md font-semibold"
+                  >
                     Height
                   </label>
                   <input
                     type="text"
                     id="height"
                     value={pet.additionalInfo.height}
-                    onChange={(e) => handleChange("additionalInfo", {
-                      ...pet.additionalInfo,
-                      height: e.target.value,
-                    })}
+                    onChange={(e) =>
+                      handleChange("additionalInfo", {
+                        ...pet.additionalInfo,
+                        height: e.target.value,
+                      })
+                    }
                     className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
                   />
                 </div>
 
                 <div className="mt-4">
-                  <label htmlFor="subNote" className="block text-md font-semibold">
+                  <label
+                    htmlFor="subNote"
+                    className="block text-md font-semibold"
+                  >
                     Add Sub Note
                   </label>
                   <input
                     type="text"
                     id="subNote"
                     value={pet.subNote}
-                    onChange={(e) => setPet({ ...pet, subNote: e.target.value })}
+                    onChange={(e) =>
+                      setPet({ ...pet, subNote: e.target.value })
+                    }
                     className="w-full p-3 mt-2 bg-gray-800 border-2 rounded-lg"
                   />
                   <button
@@ -242,7 +260,10 @@ export default function AddPetForm() {
                       if (pet.subNote) {
                         handleChange("additionalInfo", {
                           ...pet.additionalInfo,
-                          subNotes: [...pet.additionalInfo.subNotes, pet.subNote],
+                          subNotes: [
+                            ...pet.additionalInfo.subNotes,
+                            pet.subNote,
+                          ],
                         });
                         setPet({ ...pet, subNote: "" });
                       }

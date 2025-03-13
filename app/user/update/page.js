@@ -12,16 +12,17 @@ export default function AddPetForm() {
     category: "",
     type: "",
     breed: "",
-    photos: [],
+    images: [], // Single image field
+    features: [], // For extracted features
     isPublic: false,
     additionalInfo: {
       weight: "",
       height: "",
       subNotes: [],
     },
-    subNote: "",
+    subNote: "", // Temporary value for the sub-note input
   });
-  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
+  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false); // To toggle the additional info section
   const [backgroundHeight, setBackgroundHeight] = useState("auto");
 
   const BACKEND_API_PORT = process.env.NEXT_PUBLIC_BACKEND_API_PORT;
@@ -39,7 +40,9 @@ export default function AddPetForm() {
   };
 
   const handleFileChange = (files) => {
-    setPet({ ...pet, photos: Array.from(files) });
+    if (files.length > 0) {
+      setPet({ ...pet, images: [files[0]] }); // Store only the first file
+    }
   };
 
   const togglePublic = () => {
@@ -56,11 +59,19 @@ export default function AddPetForm() {
     formData.append("type", pet.type);
     formData.append("breed", pet.breed);
     formData.append("isPublic", pet.isPublic);
-    formData.append("additionalInfo", JSON.stringify(pet.additionalInfo));
 
-    pet.photos.forEach((photo) => {
-      formData.append("photos", photo);
-    });
+    // 1. Fix additionalInfo formatting
+    const additionalInfo = pet.additionalInfo.subNotes
+      ? { ...pet.additionalInfo } // Include existing subNotes
+      : { ...pet.additionalInfo, subNotes: [] };
+    formData.append("additionalInfo", JSON.stringify(additionalInfo));
+
+    // 2. Fix images formatting (must be array)
+    if (pet.images.length > 0) {
+      pet.images.forEach((image) => {
+        formData.append("images", image); // Use plural field name
+      });
+    }
 
     try {
       const response = await fetch(`${BACKEND_API_PORT}api/auth/pets/add/`, {
@@ -87,20 +98,27 @@ export default function AddPetForm() {
   return (
     <>
       <CirclesBackground height={backgroundHeight} />
-      <div className="min-h-screen bg-[#0b101a] flex flex-col justify-start">
+      <div className="min-h-screen bg-[var(--background)] flex flex-col justify-start">
         <Navbar />
 
-        <div className="flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-lg w-full bg-[#161b26] rounded-2xl shadow-2xl hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden transform transition-all hover:scale-105 duration-500 ease-in-out">
+        <div className="flex mt-20 items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-lg w-full bg-[var(--background2)] rounded-2xl shadow-lg hover:shadow-xl overflow-hidden transform transition-all hover:scale-105 duration-500 ease-in-out">
             <div className="px-10 py-12">
-              <h1 className="text-center text-3xl font-extrabold text-[#fefefe] mb-6 tracking-tight hover:tracking-wide transition-all duration-300">
+              <h1 className="text-center text-3xl font-extrabold text-[var(--textColor)] mb-6 tracking-tight hover:tracking-wide transition-all duration-300">
                 Add Pet Details
               </h1>
 
-              <form id="submitForm" className="space-y-6" onSubmit={handleSubmit}>
+              <form
+                id="submitForm"
+                className="space-y-6"
+                onSubmit={handleSubmit}
+              >
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
                       Pet Name
                     </label>
                     <input
@@ -109,14 +127,17 @@ export default function AddPetForm() {
                       name="name"
                       value={pet.name}
                       onChange={(e) => handleChange("name", e.target.value)}
-                      className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                       placeholder="Enter pet's name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="category" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
                       Select Category
                     </label>
                     <select
@@ -124,7 +145,7 @@ export default function AddPetForm() {
                       name="category"
                       value={pet.category}
                       onChange={(e) => handleChange("category", e.target.value)}
-                      className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                       required
                     >
                       <option value="">Select Category</option>
@@ -137,7 +158,10 @@ export default function AddPetForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="type" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                    <label
+                      htmlFor="type"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
                       Select Animal Type
                     </label>
                     <select
@@ -145,7 +169,7 @@ export default function AddPetForm() {
                       name="type"
                       value={pet.type}
                       onChange={(e) => handleChange("type", e.target.value)}
-                      className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                       required
                     >
                       <option value="">Select Type</option>
@@ -159,7 +183,10 @@ export default function AddPetForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="breed" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                    <label
+                      htmlFor="breed"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
                       Select Breed
                     </label>
                     <select
@@ -167,7 +194,7 @@ export default function AddPetForm() {
                       name="breed"
                       value={pet.breed}
                       onChange={(e) => handleChange("breed", e.target.value)}
-                      className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                      className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                       required
                     >
                       <option value="">Select Breed</option>
@@ -182,44 +209,54 @@ export default function AddPetForm() {
                   </div>
 
                   <div>
-                    <label htmlFor="photos" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
-                      Upload Photos
+                    <label
+                      htmlFor="images"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
+                      Upload Image
                     </label>
                     <div className="relative">
                       <input
                         type="file"
-                        id="photos"
-                        name="photos"
+                        id="images"
+                        name="images"
                         accept="image/*"
                         multiple
                         onChange={(e) => handleFileChange(e.target.files)}
                         className="hidden"
                       />
                       <label
-                        htmlFor="photos"
-                        className="flex items-center justify-center px-4 py-2 bg-[#3983fb] text-white font-bold rounded-lg cursor-pointer hover:bg-[#0b101a] hover:text-[#3983fb] hover:shadow-lg transition-all duration-300 ease-in-out"
+                        htmlFor="images"
+                        className="flex items-center justify-center px-4 py-2 bg-[var(--primaryColor)] text-[var(--textColor3)] font-bold rounded-lg cursor-pointer hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] hover:shadow-lg transition-all duration-300 ease-in-out"
                       >
-                        {pet.photos.length > 0
-                          ? `${pet.photos.length} file(s) selected`
-                          : "Choose Files"}
+                        {pet.images.length > 0
+                          ? `1 file selected`
+                          : "Choose File"}
                       </label>
                     </div>
                   </div>
 
+                  {/* Toggle button to show additional info */}
                   <div>
                     <button
                       type="button"
                       onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
-                      className="w-full bg-[#3983fb] text-white p-3 rounded-lg font-bold hover:bg-[#0b101a] hover:text-[#3983fb] transition duration-300 ease-in-out"
+                      className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
                     >
-                      {showAdditionalInfo ? "Hide Additional Info" : "Add Additional Info"}
+                      {showAdditionalInfo
+                        ? "Hide Additional Info"
+                        : "Add Additional Info"}
                     </button>
                   </div>
 
+                  {/* Additional Info fields */}
                   {showAdditionalInfo && (
                     <>
                       <div>
-                        <label htmlFor="weight" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                        <label
+                          htmlFor="weight"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
                           Weight
                         </label>
                         <input
@@ -233,13 +270,16 @@ export default function AddPetForm() {
                               weight: e.target.value,
                             })
                           }
-                          className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                           placeholder="Enter pet's weight"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="height" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                        <label
+                          htmlFor="height"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
                           Height
                         </label>
                         <input
@@ -253,20 +293,23 @@ export default function AddPetForm() {
                               height: e.target.value,
                             })
                           }
-                          className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                           placeholder="Enter pet's height"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="subNote" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                        <label
+                          htmlFor="subNote"
+                          className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                        >
                           Add Sub-Note
                         </label>
                         <input
                           type="text"
                           id="subNote"
                           name="subNote"
-                          className="w-full p-3 border border-[#4f545c] rounded-lg bg-[#2b2f3a] text-[#fefefe] focus:border-[#3983fb] focus:ring-[#3983fb] outline-none transition duration-150 ease-in-out"
+                          className="w-full p-3 border border-[var(--secondaryColor2)] rounded-lg bg-[var(--backgroundColor)] text-[var(--textColor)] focus:border-[var(--primaryColor)] focus:ring-[var(--primaryColor)] outline-none transition duration-150 ease-in-out"
                           placeholder="Add a sub-note"
                           value={pet.subNote}
                           onChange={(e) =>
@@ -279,7 +322,10 @@ export default function AddPetForm() {
                         <button
                           type="button"
                           onClick={() => {
-                            const newSubNotes = [...pet.additionalInfo.subNotes, pet.subNote];
+                            const newSubNotes = [
+                              ...pet.additionalInfo.subNotes,
+                              pet.subNote,
+                            ];
                             setPet({
                               ...pet,
                               additionalInfo: {
@@ -289,16 +335,18 @@ export default function AddPetForm() {
                               subNote: "",
                             });
                           }}
-                          className="w-full bg-[#3983fb] text-white p-3 rounded-lg font-bold hover:bg-[#0b101a] hover:text-[#3983fb] transition duration-300 ease-in-out"
+                          className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
                         >
                           Add Sub-Note
                         </button>
                         <div>
                           {pet.additionalInfo.subNotes.length > 0 && (
-                            <ul className="text-[#9ea4b0] mt-2">
-                              {pet.additionalInfo.subNotes.map((note, index) => (
-                                <li key={index}>{note}</li>
-                              ))}
+                            <ul className="text-[var(--textColor2)] mt-2">
+                              {pet.additionalInfo.subNotes.map(
+                                (note, index) => (
+                                  <li key={index}>{note}</li>
+                                )
+                              )}
                             </ul>
                           )}
                         </div>
@@ -307,7 +355,10 @@ export default function AddPetForm() {
                   )}
 
                   <div>
-                    <label htmlFor="isPublic" className="block text-sm font-semibold text-[#9ea4b0] mb-1">
+                    <label
+                      htmlFor="isPublic"
+                      className="block text-sm font-semibold text-[var(--textColor2)] mb-1"
+                    >
                       Visibility
                     </label>
                     <div className="flex items-center">
@@ -317,9 +368,12 @@ export default function AddPetForm() {
                         name="isPublic"
                         checked={pet.isPublic}
                         onChange={togglePublic}
-                        className="h-5 w-5 text-[#3983fb] border border-[#4f545c] rounded focus:ring-[#3983fb] transition duration-150 ease-in-out"
+                        className="h-5 w-5 text-[var(--primaryColor)] border border-[var(--secondaryColor2)] rounded focus:ring-[var(--primaryColor)] transition duration-150 ease-in-out"
                       />
-                      <label htmlFor="isPublic" className="ml-2 text-sm text-[#9ea4b0]">
+                      <label
+                        htmlFor="isPublic"
+                        className="ml-2 text-sm text-[var(--textColor2)]"
+                      >
                         Make photos public
                       </label>
                     </div>
@@ -329,7 +383,7 @@ export default function AddPetForm() {
                 <div>
                   <button
                     type="submit"
-                    className="w-full bg-[#3983fb] text-white p-3 rounded-lg font-bold hover:bg-[#0b101a] hover:text-[#3983fb] transition duration-300 ease-in-out"
+                    className="w-full bg-[var(--primaryColor)] text-[var(--textColor3)] p-3 rounded-lg font-bold hover:bg-[var(--primary1)] hover:text-[var(--textColor3)] transition duration-300 ease-in-out"
                   >
                     Add Pet
                   </button>
